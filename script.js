@@ -7,4 +7,5 @@ let audio = document.getElementById("myAudio");
 document.addEventListener("click", () => {
     let audio = document.getElementById("myAudio");
     audio.play();
+    audio.muted = false; 
   }, { once: true }); // Chạy một lần khi người dùng nhấp
