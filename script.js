@@ -63,6 +63,23 @@ $(document).ready(function() {
  //  hoverSound.pause();
  // });
 
+  // Toggle mute/unmute functionality on click
+  $(document).ready(function() {
+  if (localStorage.getItem("muteState") === "true") {
+    Howler.mute(true);
+    $("#sound").addClass("muted");
+  } else {
+    Howler.mute(false);
+    $("#sound").removeClass("muted");
+  }
+  $("#sound").on("click", function () {
+    let isMuted = !Howler._muted;
+    Howler.mute(isMuted);
+    $(this).toggleClass("muted", isMuted);
+    localStorage.setItem("muteState", isMuted.toString());
+  	});
+    });
+
 });
 
 
