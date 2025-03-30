@@ -16,7 +16,6 @@ $(document).ready(function() {
   let sound = new Howl({
     src: ["https://cdn.jsdelivr.net/gh/trancongduu/congdu-portfolio@main/Cyberpunk%20Edgerunners%20Let%20You%20Down.m4a"],
     volume: 0.2,
-    autoplay: true,
     loop: true,
     onend: function() {
       console.log('Finished!');
@@ -33,38 +32,20 @@ $(document).ready(function() {
     volume: 0.2,
   });
 
-  // Start playing bg sound on click
-  $("#start").on("click", function () {
+  // Chỉ chạy nhạc khi user click vào nút #start
+  $("#start").one("click", function (event) {
+    event.stopPropagation(); // Ngăn chặn sự kiện lan ra ngoài
     sound.play();
   });
 
-  // Toggle mute/unmute functionality on click
-  $("#sound").on("click", function () {
-    $(this).toggleClass("muted");
-    if ($(this).hasClass("muted")) {
-      Howler.mute(true);
-    } else {
-      Howler.mute(false);
+  // Không cho phép phát nhạc nếu bấm ra ngoài nút #start
+  $(document).on("click", function (event) {
+    if (!$(event.target).is("#start")) {
+      console.log("Nhấn ngoài nút start, không phát nhạc.");
     }
   });
 
-  // Play click sound 
-  $("[data-click]").on("click", function () {
-    clickSound.play();
-  });
-
-  // Play hover sound 
-  $("[data-hover]").on("mouseenter", function () {
-    hoverSound.play();
-  });
-
- // Pause hover sound when mouse leaves elements with the data-hover attribute
- // $("[data-hover]").on("mouseleave", function () {
- //  hoverSound.pause();
- // });
-
-  // Toggle mute/unmute functionality on click
-  $(document).ready(function() {
+  // Toggle mute/unmute với localStorage
   if (localStorage.getItem("muteState") === "true") {
     Howler.mute(true);
     $("#sound").addClass("muted");
@@ -72,14 +53,23 @@ $(document).ready(function() {
     Howler.mute(false);
     $("#sound").removeClass("muted");
   }
+
   $("#sound").on("click", function () {
     let isMuted = !Howler._muted;
     Howler.mute(isMuted);
     $(this).toggleClass("muted", isMuted);
     localStorage.setItem("muteState", isMuted.toString());
-  	});
-    });
+  });
 
+  // Phát âm thanh khi click
+  $("[data-click]").on("click", function () {
+    clickSound.play();
+  });
+
+  // Phát âm thanh khi hover
+  $("[data-hover]").on("mouseenter", function () {
+    hoverSound.play();
+  });
 });
 
 
