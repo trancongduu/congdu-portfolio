@@ -14,8 +14,8 @@ console.log("File JavaScript đã được tải thành công!");
 // Howler 
 $(document).ready(function() {
   let sound = new Howl({
-    src: ["https://www.dropbox.com/scl/fi/s1g6pbtuhvr719hww2n5m/Cyberpunk-Edgerunners-Let-You-Down.m4a?rlkey=ilfzy8d5xlogp0oej671fta00&st=d1gjfxh9&raw=1"],
-    volume: 0.5,
+    src: ["https://cdn.jsdelivr.net/gh/trancongduu/congdu-portfolio@main/Cyberpunk%20Edgerunners%20Let%20You%20Down.m4a"],
+    volume: 0.2,
     autoplay: true,
     loop: true,
     onend: function() {
@@ -24,11 +24,13 @@ $(document).ready(function() {
   });
 
   let clickSound = new Howl({
-    src: ["https://cdn.jsdelivr.net/gh/bedantpixeto/audio/ES_MM%20Beep%2043%20-%20SFX%20Producer.mp3"]
+    src: ["https://cdn.jsdelivr.net/gh/bedantpixeto/audio/ES_MM%20Beep%2043%20-%20SFX%20Producer.mp3"],
+    volume: 0.3,
   });
 
   let hoverSound = new Howl({
-    src: ["https://cdn.jsdelivr.net/gh/bedantpixeto/audio/hover-1.mp3"]
+    src: ["https://cdn.jsdelivr.net/gh/bedantpixeto/audio/hover-1.mp3"],
+    volume: 0.2,
   });
 
   // Start playing bg sound on click
