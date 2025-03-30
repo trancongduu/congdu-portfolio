@@ -34,7 +34,6 @@ $(document).ready(function() {
 
   // Chỉ chạy nhạc khi user click vào nút #start
   $("#start").one("click", function (event) {
-    event.stopPropagation(); // Ngăn chặn sự kiện lan ra ngoài
     sound.play();
   });
 
