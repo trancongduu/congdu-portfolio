@@ -64,37 +64,6 @@ $(document).ready(function() {
     hoverSound.play();
   });
 });
-// Biến toàn cục cho player
-var player;
-
-// Hàm API của YouTube sẽ gọi khi API đã tải xong
-function onYouTubeIframeAPIReady() {
-  player = new YT.Player('youtube-player', {
-    height: '360',
-    width: '640',
-    videoId: 'VIDEO_ID_CUA_BAN', // thay bằng ID video của bạn
-    events: {
-      'onStateChange': onPlayerStateChange
-    }
-  });
-}
-
-// Hàm xử lý sự thay đổi trạng thái của video
-function onPlayerStateChange(event) {
-  // Nếu video đang phát
-  if (event.data === YT.PlayerState.PLAYING) {
-    Howler.mute(true); // Tắt nhạc nền khi video play
-    $("#sound").addClass("muted");
-  }
-  // Nếu video tạm dừng hoặc kết thúc
-  else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
-    // Chỉ bật lại nhạc nếu localStorage không có trạng thái mute
-    if (localStorage.getItem("muteState") !== "true") {
-      Howler.mute(false);
-      $("#sound").removeClass("muted");
-    }
-  }
-}
 
 
 
