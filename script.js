@@ -65,6 +65,7 @@ $(document).ready(function() {
 
 // Lenis scroll smooth
 if (!document.querySelector("html").classList.contains('w-editor')){
+  autoRaf: true,
   const lenis = new Lenis({
     duration: 1.2,
     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // https://www.desmos.com/calculator/brs54l4xou
@@ -85,6 +86,18 @@ if (!document.querySelector("html").classList.contains('w-editor')){
     lenis.raf(time)
     requestAnimationFrame(raf)
   }
+
+  // Synchronize Lenis scrolling with GSAP's ScrollTrigger plugin
+lenis.on('scroll', ScrollTrigger.update);
+
+// Add Lenis's requestAnimationFrame (raf) method to GSAP's ticker
+// This ensures Lenis's smooth scroll animation updates on each GSAP tick
+gsap.ticker.add((time) => {
+  lenis.raf(time * 1000); // Convert time from seconds to milliseconds
+});
+
+// Disable lag smoothing in GSAP to prevent any delay in scroll animations
+gsap.ticker.lagSmoothing(0);
 
   // Grab all elements that have a "data-target" attribute
   const scrollButtons = document.querySelectorAll('[data-target]');
