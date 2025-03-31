@@ -34,11 +34,11 @@ $(document).ready(function() {
     sound.play();
   });
   // Không cho phép phát nhạc nếu bấm ra ngoài nút #start
-  $(document).on("click", function (event) {
-    if (!$(event.target).is("#start")) {
-      console.log("Nhấn ngoài nút start, không phát nhạc.");
-    }
-  });
+  // $(document).on("click", function (event) {
+  //   if (!$(event.target).is("#start")) {
+  //     console.log("Nhấn ngoài nút start, không phát nhạc.");
+  //   }
+  // });
   // Toggle mute/unmute với localStorage
   if (localStorage.getItem("muteState") === "true") {
     Howler.mute(true);
@@ -77,9 +77,9 @@ if (!document.querySelector("html").classList.contains('w-editor')){
   })
 
   // Get scroll value. This is just for testing purposes. Delete this if you're not using the scroll value for anything.
-  lenis.on('scroll', ({ scroll, limit, velocity, direction, progress }) => {
-    console.log({ scroll, limit, velocity, direction, progress })
-  })
+  // lenis.on('scroll', ({ scroll, limit, velocity, direction, progress }) => {
+  //   console.log({ scroll, limit, velocity, direction, progress })
+  // })
 
   function raf(time) {
     lenis.raf(time)
@@ -102,7 +102,7 @@ if (!document.querySelector("html").classList.contains('w-editor')){
       lenis.scrollTo($el, {
         offset: 0, 
         immediate: false,
-        duration: 3,
+        duration: 2,
         easing: (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2), // https://easings.net
       });
     });
