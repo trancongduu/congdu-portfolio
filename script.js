@@ -34,11 +34,11 @@ $(document).ready(function() {
     sound.play();
   });
   // Không cho phép phát nhạc nếu bấm ra ngoài nút #start
-  // $(document).on("click", function (event) {
-  //   if (!$(event.target).is("#start")) {
-  //     console.log("Nhấn ngoài nút start, không phát nhạc.");
-  //   }
-  // });
+  $(document).on("click", function (event) {
+    if (!$(event.target).is("#start")) {
+      // console.log("Nhấn ngoài nút start, không phát nhạc.");
+    }
+  });
   // Toggle mute/unmute với localStorage
   if (localStorage.getItem("muteState") === "true") {
     Howler.mute(true);
