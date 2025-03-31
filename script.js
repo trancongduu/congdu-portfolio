@@ -18,29 +18,35 @@ $(document).ready(function() {
     volume: 0.2,
     loop: true,
     onend: function() {
-      console.log('Finished!');
+      console.log("Finished!");
     }
   });
+
   let clickSound = new Howl({
     src: ["https://cdn.jsdelivr.net/gh/bedantpixeto/audio/ES_MM%20Beep%2043%20-%20SFX%20Producer.mp3"],
     volume: 0.3,
   });
+
   let hoverSound = new Howl({
     src: ["https://cdn.jsdelivr.net/gh/bedantpixeto/audio/hover-1.mp3"],
     volume: 0.2,
   });
-  // Chỉ chạy nhạc khi user click vào nút #start
-  $("#start").one("click", function (event) {
+
+  // Kiểm tra nếu trang trước đã bật nhạc
+  if (localStorage.getItem("isPlaying") === "true") {
     Howler.mute(false);
-  sound.volume(0.2);
-  sound.play();
+    sound.volume(0.2);
+    sound.play();
+  }
+
+  // Khi user bấm #start, bật nhạc & lưu trạng thái
+  $("#start").one("click", function () {
+    Howler.mute(false);
+    sound.volume(0.2);
+    sound.play();
+    localStorage.setItem("isPlaying", "true");
   });
-  // Không cho phép phát nhạc nếu bấm ra ngoài nút #start
-  $(document).on("click", function (event) {
-    if (!$(event.target).is("#start")) {
-      // console.log("Nhấn ngoài nút start, không phát nhạc.");
-    }
-  });
+
   // Toggle mute/unmute với localStorage
   if (localStorage.getItem("muteState") === "true") {
     Howler.mute(true);
@@ -49,21 +55,30 @@ $(document).ready(function() {
     Howler.mute(false);
     $("#sound").removeClass("muted");
   }
+
   $("#sound").on("click", function () {
     let isMuted = !Howler._muted;
     Howler.mute(isMuted);
     $(this).toggleClass("muted", isMuted);
     localStorage.setItem("muteState", isMuted.toString());
   });
+
   // Phát âm thanh khi click
   $("[data-click]").on("click", function () {
     clickSound.play();
   });
+
   // Phát âm thanh khi hover
   $("[data-hover]").on("mouseenter", function () {
     hoverSound.play();
   });
+
+  // Khi user rời trang, đảm bảo trạng thái nhạc vẫn lưu
+  $(window).on("beforeunload", function () {
+    localStorage.setItem("isPlaying", sound.playing().toString());
+  });
 });
+
 
 // Lenis scroll smooth
 if (!document.querySelector("html").classList.contains('w-editor')){
