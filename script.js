@@ -31,7 +31,9 @@ $(document).ready(function() {
   });
   // Chỉ chạy nhạc khi user click vào nút #start
   $("#start").one("click", function (event) {
-    sound.play();
+    Howler.mute(false);
+  sound.volume(0.2);
+  sound.play();
   });
   // Không cho phép phát nhạc nếu bấm ra ngoài nút #start
   $(document).on("click", function (event) {
