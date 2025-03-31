@@ -86,18 +86,6 @@ if (!document.querySelector("html").classList.contains('w-editor')){
     requestAnimationFrame(raf)
   }
 
-  // Synchronize Lenis scrolling with GSAP's ScrollTrigger plugin
-lenis.on('scroll', ScrollTrigger.update);
-
-// Add Lenis's requestAnimationFrame (raf) method to GSAP's ticker
-// This ensures Lenis's smooth scroll animation updates on each GSAP tick
-gsap.ticker.add((time) => {
-  lenis.raf(time * 1000); // Convert time from seconds to milliseconds
-});
-
-// Disable lag smoothing in GSAP to prevent any delay in scroll animations
-gsap.ticker.lagSmoothing(0);
-
   // Grab all elements that have a "data-target" attribute
   const scrollButtons = document.querySelectorAll('[data-target]');
 
@@ -114,7 +102,7 @@ gsap.ticker.lagSmoothing(0);
       lenis.scrollTo($el, {
         offset: 0, 
         immediate: false,
-        duration: 2,
+        duration: 1.5,
         easing: (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2), // https://easings.net
       });
     });
