@@ -65,7 +65,6 @@ $(document).ready(function() {
 
 // Lenis scroll smooth
 if (!document.querySelector("html").classList.contains('w-editor')){
-  autoRaf: true,
   const lenis = new Lenis({
     duration: 1.2,
     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // https://www.desmos.com/calculator/brs54l4xou
