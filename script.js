@@ -17,10 +17,17 @@ $(document).ready(function() {
     src: ["https://cdn.jsdelivr.net/gh/trancongduu/congdu-portfolio@main/Cyberpunk%20Edgerunners%20Let%20You%20Down.m4a"],
     volume: 0.2,
     loop: true,
-    onend: function() {
-      console.log("Finished!");
+    onload: function() {
+      // Khi audio đã tải xong, kiểm tra xem có lưu tiến trình phát từ trước không
+      let savedPosition = localStorage.getItem("playProgress");
+      if (savedPosition) {
+        // Đặt vị trí phát tiếp theo và tự động chạy nhạc
+        sound.seek(parseFloat(savedPosition));
+        sound.play();
+      }
     }
   });
+
 
   let clickSound = new Howl({
     src: ["https://cdn.jsdelivr.net/gh/bedantpixeto/audio/ES_MM%20Beep%2043%20-%20SFX%20Producer.mp3"],
@@ -32,19 +39,29 @@ $(document).ready(function() {
     volume: 0.2,
   });
 
-  // Kiểm tra nếu trang trước đã bật nhạc
+  // Nếu nhạc đã bật từ trang trước, tự động play và ẩn nút #start
   if (localStorage.getItem("isPlaying") === "true") {
     Howler.mute(false);
     sound.volume(0.2);
-    sound.play();
+    if (!sound.playing()) {
+      sound.play();
+    }
+    $("#start").hide();
   }
 
-  // Khi user bấm #start, bật nhạc & lưu trạng thái
+  // Khi user bấm #start, phát nhạc và ẩn nút để tránh phát lại
   $("#start").one("click", function () {
     Howler.mute(false);
     sound.volume(0.2);
     sound.play();
     localStorage.setItem("isPlaying", "true");
+  });
+
+  // Lưu tiến trình phát trước khi rời trang (nếu nhạc đang phát)
+  $(window).on("beforeunload", function () {
+    if (sound.playing()) {
+      localStorage.setItem("playProgress", sound.seek());
+    }
   });
 
   // Toggle mute/unmute với localStorage
@@ -73,11 +90,9 @@ $(document).ready(function() {
     hoverSound.play();
   });
 
-  // Khi user rời trang, đảm bảo trạng thái nhạc vẫn lưu
-  $(window).on("beforeunload", function () {
-    localStorage.setItem("isPlaying", sound.playing().toString());
-  });
+
 });
+
 
 
 // Lenis scroll smooth
