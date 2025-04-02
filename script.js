@@ -141,19 +141,20 @@ var matterCircle = document.querySelectorAll('.dm-matter-elem-circle');
 var matterPill = document.querySelectorAll('.dm-matter-elem-pill');
 
 matterElems.forEach((elem) => {
-    elem.dataset.initialLeft = elem.style.left;
-    elem.dataset.initialTop = elem.style.top;
+    elem.dataset.initialLeft = elem.offsetLeft;
+    elem.dataset.initialTop = elem.offsetTop;
 });
 
 matterCircle.forEach((elem) => {
-    elem.dataset.initialLeft = elem.style.left;
-    elem.dataset.initialTop = elem.style.top;
+    elem.dataset.initialLeft = elem.offsetLeft;
+    elem.dataset.initialTop = elem.offsetTop;
 });
 
 matterPill.forEach((elem) => {
-    elem.dataset.initialLeft = elem.style.left;
-    elem.dataset.initialTop = elem.style.top;
+    elem.dataset.initialLeft = elem.offsetLeft;
+    elem.dataset.initialTop = elem.offsetTop;
 });
+
 
 // Function to create rectangles for dm-matter-elem elements
 function createRectangles() {
@@ -423,13 +424,14 @@ observer.observe(matterBox);
 
 // Reset
 document.getElementById('resetMatterBox').addEventListener('click', function () {
-    // 🛑 Dừng và xóa Matter.js hiện tại
+    // 🛑 Dừng và hủy engine hiện tại
     Runner.stop(runner);
     Render.stop(render);
     Composite.clear(engine.world);
     Engine.clear(engine);
+    render.canvas.remove(); // Xóa canvas cũ để tạo lại
 
-    // 🔄 Đưa các phần tử về vị trí gốc
+    // 🔄 Reset lại vị trí và transform của các phần tử HTML
     matterElems.forEach((elem) => {
         elem.style.left = elem.dataset.initialLeft + 'px';
         elem.style.top = elem.dataset.initialTop + 'px';
@@ -448,8 +450,15 @@ document.getElementById('resetMatterBox').addEventListener('click', function () 
         elem.style.transform = 'rotate(0rad)';
     });
 
-    // ✅ Tạo lại engine mới
+    // ✅ Tạo lại toàn bộ Matter.js
+    initializeMatterJS();
+});
+
+function initializeMatterJS() {
+    // 🔄 Khởi tạo lại engine
     engine = Engine.create();
+
+    // ✅ Tạo lại renderer
     render = Render.create({
         element: matterBox,
         engine: engine,
@@ -461,13 +470,13 @@ document.getElementById('resetMatterBox').addEventListener('click', function () 
         }
     });
 
-    // ✅ Tạo lại vật thể trong Matter.js World
+    // ✅ Tạo lại vật thể trong Matter.js
     createBoundaries();
     elemBodies = createRectangles();
     elemCircles = createCircles();
     elemPills = createPills();
 
-    // ✅ Tạo lại runner và chuột
+    // ✅ Tạo lại runner và điều khiển chuột
     runner = Runner.create();
     mouse = Mouse.create(render.canvas);
     mouseConstraint = MouseConstraint.create(engine, {
@@ -485,7 +494,13 @@ document.getElementById('resetMatterBox').addEventListener('click', function () 
     Render.run(render);
 
     console.log("Matter.js đã được reset và khởi chạy lại!");
-});
+}
+
+// 🚀 Chạy Matter.js lần đầu
+initializeMatterJS();
+
+
+
 
 
 
