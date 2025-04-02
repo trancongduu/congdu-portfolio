@@ -423,32 +423,32 @@ observer.observe(matterBox);
 
 // Reset
 document.getElementById('resetMatterBox').addEventListener('click', function () {
-    // 🛑 Dừng engine hiện tại
+    // 🛑 Dừng và xóa Matter.js hiện tại
     Runner.stop(runner);
     Render.stop(render);
     Composite.clear(engine.world);
     Engine.clear(engine);
 
-    // 🔄 Đưa các phần tử HTML về vị trí gốc
+    // 🔄 Đưa các phần tử về vị trí gốc
     matterElems.forEach((elem) => {
-        elem.style.left = elem.dataset.initialLeft;
-        elem.style.top = elem.dataset.initialTop;
+        elem.style.left = elem.dataset.initialLeft + 'px';
+        elem.style.top = elem.dataset.initialTop + 'px';
         elem.style.transform = 'rotate(0rad)';
     });
 
     matterCircle.forEach((elem) => {
-        elem.style.left = elem.dataset.initialLeft;
-        elem.style.top = elem.dataset.initialTop;
+        elem.style.left = elem.dataset.initialLeft + 'px';
+        elem.style.top = elem.dataset.initialTop + 'px';
         elem.style.transform = 'rotate(0rad)';
     });
 
     matterPill.forEach((elem) => {
-        elem.style.left = elem.dataset.initialLeft;
-        elem.style.top = elem.dataset.initialTop;
+        elem.style.left = elem.dataset.initialLeft + 'px';
+        elem.style.top = elem.dataset.initialTop + 'px';
         elem.style.transform = 'rotate(0rad)';
     });
 
-    // ✅ Tạo lại Matter.js từ đầu
+    // ✅ Tạo lại engine mới
     engine = Engine.create();
     render = Render.create({
         element: matterBox,
@@ -461,13 +461,13 @@ document.getElementById('resetMatterBox').addEventListener('click', function () 
         }
     });
 
-    // ✅ Tạo lại các vật thể
+    // ✅ Tạo lại vật thể trong Matter.js World
     createBoundaries();
     elemBodies = createRectangles();
     elemCircles = createCircles();
     elemPills = createPills();
 
-    // ✅ Tạo lại runner và điều khiển chuột
+    // ✅ Tạo lại runner và chuột
     runner = Runner.create();
     mouse = Mouse.create(render.canvas);
     mouseConstraint = MouseConstraint.create(engine, {
@@ -480,12 +480,13 @@ document.getElementById('resetMatterBox').addEventListener('click', function () 
     Composite.add(engine.world, mouseConstraint);
     render.mouse = mouse;
 
-    // 🔥 Chạy lại Matter.js ngay lập tức
+    // 🔥 Chạy lại Matter.js
     Runner.run(runner, engine);
     Render.run(render);
 
-    console.log("Matter.js has been completely reset and restarted.");
+    console.log("Matter.js đã được reset và khởi chạy lại!");
 });
+
 
 
 
