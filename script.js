@@ -140,6 +140,21 @@ var matterElems = document.querySelectorAll('.dm-matter-elem');
 var matterCircle = document.querySelectorAll('.dm-matter-elem-circle');
 var matterPill = document.querySelectorAll('.dm-matter-elem-pill');
 
+matterElems.forEach((elem) => {
+    elem.dataset.initialLeft = elem.style.left;
+    elem.dataset.initialTop = elem.style.top;
+});
+
+matterCircle.forEach((elem) => {
+    elem.dataset.initialLeft = elem.style.left;
+    elem.dataset.initialTop = elem.style.top;
+});
+
+matterPill.forEach((elem) => {
+    elem.dataset.initialLeft = elem.style.left;
+    elem.dataset.initialTop = elem.style.top;
+});
+
 // Function to create rectangles for dm-matter-elem elements
 function createRectangles() {
     return Array.from(matterElems).map(function(matterElem) {
