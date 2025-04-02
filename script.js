@@ -408,20 +408,30 @@ observer.observe(matterBox);
 
 // Reset
 document.getElementById('resetMatterBox').addEventListener('click', function () {
-    // 🛑 Xóa mọi thứ liên quan đến Matter.js
-    try {
-        Runner.stop(runner);
-        Render.stop(render);
-        Composite.clear(engine.world);
-        Engine.clear(engine);
-        render.canvas.remove();
-        render.textures = {};
-    } catch (e) {
-        console.error("Error while clearing Matter.js:", e);
-    }
+    // 🛑 Dừng engine hiện tại
+    Runner.stop(runner);
+    Render.stop(render);
+    Composite.clear(engine.world);
+    Engine.clear(engine);
 
-    // 🛑 Reset lại container
-    matterBox.innerHTML = '';
+    // 🔄 Đưa các phần tử HTML về vị trí gốc
+    matterElems.forEach((elem) => {
+        elem.style.left = elem.dataset.initialLeft;
+        elem.style.top = elem.dataset.initialTop;
+        elem.style.transform = 'rotate(0rad)';
+    });
+
+    matterCircle.forEach((elem) => {
+        elem.style.left = elem.dataset.initialLeft;
+        elem.style.top = elem.dataset.initialTop;
+        elem.style.transform = 'rotate(0rad)';
+    });
+
+    matterPill.forEach((elem) => {
+        elem.style.left = elem.dataset.initialLeft;
+        elem.style.top = elem.dataset.initialTop;
+        elem.style.transform = 'rotate(0rad)';
+    });
 
     // ✅ Tạo lại Matter.js từ đầu
     engine = Engine.create();
@@ -461,5 +471,6 @@ document.getElementById('resetMatterBox').addEventListener('click', function () 
 
     console.log("Matter.js has been completely reset and restarted.");
 });
+
 
 
