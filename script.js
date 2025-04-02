@@ -408,16 +408,16 @@ observer.observe(matterBox);
 
 // Reset
 document.getElementById('resetMatterBox').addEventListener('click', function () {
-    // Dừng engine hiện tại
+    // Dừng và xóa engine cũ
     Runner.stop(runner);
     Render.stop(render);
     Composite.clear(engine.world);
     Engine.clear(engine);
-    
-    // Xóa renderer canvas
+
+    // Xóa renderer canvas cũ
     matterBox.innerHTML = '';
 
-    // Tạo lại engine và renderer
+    // Tạo lại engine và renderer mới
     engine = Engine.create();
     render = Render.create({
         element: matterBox,
@@ -436,12 +436,10 @@ document.getElementById('resetMatterBox').addEventListener('click', function () 
     elemCircles = createCircles();
     elemPills = createPills();
 
-    // Tạo lại runner và chạy engine
+    // Tạo lại runner
     runner = Runner.create();
-    Runner.run(runner, engine);
-    Render.run(render);
 
-    // Gán lại điều khiển chuột
+    // Tạo lại điều khiển chuột
     mouse = Mouse.create(render.canvas);
     mouseConstraint = MouseConstraint.create(engine, {
         mouse: mouse,
@@ -452,7 +450,11 @@ document.getElementById('resetMatterBox').addEventListener('click', function () 
     });
     Composite.add(engine.world, mouseConstraint);
     render.mouse = mouse;
+
+    // 🔥 **Chạy lại engine ngay lập tức**
+    Runner.run(runner, engine);
+    Render.run(render);
+
+    // Đặt lại trạng thái đã khởi động engine
+    engineStarted = true;
 });
-
-
-
