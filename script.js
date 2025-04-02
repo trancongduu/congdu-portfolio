@@ -405,20 +405,54 @@ var observer = new IntersectionObserver(function(entries) {
 // Start observing the matterBox
 observer.observe(matterBox);
 
-document.getElementById('resetMatterBox').addEventListener('click', function () {
-    // Dừng engine và clear thế giới hiện tại
-    Runner.stop(runner);
-    Composite.clear(engine.world, false);
 
-    // Xóa và khởi tạo lại các vật thể
+// Reset
+document.getElementById('resetMatterBox').addEventListener('click', function () {
+    // Dừng engine hiện tại
+    Runner.stop(runner);
+    Render.stop(render);
+    Composite.clear(engine.world);
+    Engine.clear(engine);
+    
+    // Xóa renderer canvas
+    matterBox.innerHTML = '';
+
+    // Tạo lại engine và renderer
+    engine = Engine.create();
+    render = Render.create({
+        element: matterBox,
+        engine: engine,
+        options: {
+            width: matterBox.clientWidth,
+            height: matterBox.clientHeight,
+            wireframes: false,
+            background: 'transparent'
+        }
+    });
+
+    // Tạo lại các vật thể
     createBoundaries();
     elemBodies = createRectangles();
     elemCircles = createCircles();
     elemPills = createPills();
 
-    // Khởi động lại engine và render
+    // Tạo lại runner và chạy engine
+    runner = Runner.create();
     Runner.run(runner, engine);
     Render.run(render);
+
+    // Gán lại điều khiển chuột
+    mouse = Mouse.create(render.canvas);
+    mouseConstraint = MouseConstraint.create(engine, {
+        mouse: mouse,
+        constraint: {
+            stiffness: 0.2,
+            render: { visible: false }
+        }
+    });
+    Composite.add(engine.world, mouseConstraint);
+    render.mouse = mouse;
 });
+
 
 
