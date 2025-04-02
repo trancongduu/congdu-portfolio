@@ -405,6 +405,20 @@ var observer = new IntersectionObserver(function(entries) {
 // Start observing the matterBox
 observer.observe(matterBox);
 
+document.getElementById('resetMatterBox').addEventListener('click', function () {
+    // Dừng engine và clear thế giới hiện tại
+    Runner.stop(runner);
+    Composite.clear(engine.world, false);
 
+    // Xóa và khởi tạo lại các vật thể
+    createBoundaries();
+    elemBodies = createRectangles();
+    elemCircles = createCircles();
+    elemPills = createPills();
+
+    // Khởi động lại engine và render
+    Runner.run(runner, engine);
+    Render.run(render);
+});
 
 
