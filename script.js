@@ -408,19 +408,22 @@ observer.observe(matterBox);
 
 // Reset
 document.getElementById('resetMatterBox').addEventListener('click', function () {
-    // 🛑 Tạm dừng observer để tránh lỗi
-    observer.disconnect();
+    // 🛑 Xóa mọi thứ liên quan đến Matter.js
+    try {
+        Runner.stop(runner);
+        Render.stop(render);
+        Composite.clear(engine.world);
+        Engine.clear(engine);
+        render.canvas.remove();
+        render.textures = {};
+    } catch (e) {
+        console.error("Error while clearing Matter.js:", e);
+    }
 
-    // 🛑 Dừng engine cũ và xóa renderer
-    Runner.stop(runner);
-    Render.stop(render);
-    Composite.clear(engine.world);
-    Engine.clear(engine);
-
-    // 🛑 Xóa canvas hiện tại để tránh lỗi vẽ
+    // 🛑 Reset lại container
     matterBox.innerHTML = '';
 
-    // ✅ Tạo lại engine và renderer mới
+    // ✅ Tạo lại Matter.js từ đầu
     engine = Engine.create();
     render = Render.create({
         element: matterBox,
@@ -439,10 +442,8 @@ document.getElementById('resetMatterBox').addEventListener('click', function () 
     elemCircles = createCircles();
     elemPills = createPills();
 
-    // ✅ Tạo lại runner
+    // ✅ Tạo lại runner và điều khiển chuột
     runner = Runner.create();
-
-    // ✅ Tạo lại điều khiển chuột
     mouse = Mouse.create(render.canvas);
     mouseConstraint = MouseConstraint.create(engine, {
         mouse: mouse,
@@ -454,14 +455,11 @@ document.getElementById('resetMatterBox').addEventListener('click', function () 
     Composite.add(engine.world, mouseConstraint);
     render.mouse = mouse;
 
-    // 🔥 Chạy ngay lập tức không cần observer
+    // 🔥 Chạy lại Matter.js ngay lập tức
     Runner.run(runner, engine);
     Render.run(render);
-    
-    // ✅ Khởi động lại observer để tiếp tục theo dõi
-    observer.observe(matterBox);
 
-    // ✅ Đánh dấu engine đã khởi động lại
-    engineStarted = true;
+    console.log("Matter.js has been completely reset and restarted.");
 });
+
 
