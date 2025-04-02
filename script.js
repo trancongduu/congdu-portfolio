@@ -108,298 +108,599 @@ if (!document.querySelector("html").classList.contains('w-editor')){
 
 
 // Matter.js
-// --- Matter.js setup (giữ nguyên phần khai báo ban đầu) ---
 var Engine = Matter.Engine,
-    Render = Matter.Render,
-    Runner = Matter.Runner,
-    Bodies = Matter.Bodies,
-    Composite = Matter.Composite,
-    MouseConstraint = Matter.MouseConstraint,
-    Mouse = Matter.Mouse,
-    Events = Matter.Events,
-    Body = Matter.Body;
+
+    Render = Matter.Render,
+
+    Runner = Matter.Runner,
+
+    Bodies = Matter.Bodies,
+
+    Composite = Matter.Composite,
+
+    MouseConstraint = Matter.MouseConstraint,
+
+    Mouse = Matter.Mouse,
+
+    Events = Matter.Events,
+
+    Body = Matter.Body;
+
+
+
+// create an engine
 
 var engine = Engine.create();
+
+
+
+// select the element where you want to render the simulation
+
 var matterBox = document.querySelector('.matter-box');
-if (!matterBox) console.error('.matter-box element not found!');
+
+
+
+// create a renderer
 
 var render = Render.create({
-    element: matterBox,
-    engine: engine,
-    options: {
-        width: matterBox ? matterBox.clientWidth : 800, // Default size if element not found yet
-        height: matterBox ? matterBox.clientHeight : 600,
-        wireframes: false, // Set true for debugging shapes
-        background: 'transparent'
-    }
+
+    element: matterBox,
+
+    engine: engine,
+
+    options: {
+
+        width: matterBox.clientWidth,
+
+        height: matterBox.clientHeight,
+
+        wireframes: false,
+
+        background: 'transparent'
+
+    }
+
 });
+
+
 
 var matterElems = document.querySelectorAll('.dm-matter-elem');
+
 var matterCircle = document.querySelectorAll('.dm-matter-elem-circle');
+
 var matterPill = document.querySelectorAll('.dm-matter-elem-pill');
 
-// Mảng lưu trữ vật thể và trạng thái ban đầu
-var elementBodies = []; // Dùng một mảng duy nhất để dễ quản lý
 
-// --- Hàm tạo vật thể (LƯU Ý: Chỉ chạy 1 lần khi khởi tạo) ---
-function createInitialBodies() {
-    console.log("Creating initial bodies...");
-    elementBodies = []; // Xóa các body cũ nếu hàm này được gọi lại (không nên xảy ra trong luồng này)
 
-    // Rectangles
-    matterElems.forEach(function(matterElem, index) {
-        try {
-            var elemWidth = matterElem.offsetWidth;
-            var elemHeight = matterElem.offsetHeight;
-            var elemInitialPosX = matterElem.offsetLeft + elemWidth / 2;
-            var elemInitialPosY = matterElem.offsetTop + elemHeight / 2;
 
-            var elemBody = Bodies.rectangle(elemInitialPosX, elemInitialPosY, elemWidth, elemHeight, {
-                density: 0.01, friction: 0.1, restitution: 0.5, render: { opacity: 0 }
-            });
 
-            elemBody.initialPosition = { x: elemInitialPosX, y: elemInitialPosY };
-            elemBody.initialAngle = 0;
-            elemBody.domElement = matterElem; // Liên kết body với DOM element
+// Function to create rectangles for dm-matter-elem elements
 
-            Composite.add(engine.world, elemBody);
-            elementBodies.push(elemBody);
-        } catch (error) {
-            console.error("Error creating rectangle body for:", matterElem, error);
-        }
-    });
+function createRectangles() {
 
-    // Circles
-    matterCircle.forEach(function(matterCircleElem, index) {
-       try {
-            var circleElemWidth = matterCircleElem.offsetWidth;
-            var circleElemHeight = matterCircleElem.offsetHeight; // Dùng cả height để tính tâm nếu không phải hình tròn hoàn hảo
-            var circleElemInitialPosX = matterCircleElem.offsetLeft + circleElemWidth / 2;
-            var circleElemInitialPosY = matterCircleElem.offsetTop + circleElemHeight / 2;
-            var radius = Math.max(circleElemWidth, circleElemHeight) / 2; // Bán kính là nửa cạnh lớn nhất
+    return Array.from(matterElems).map(function(matterElem) {
 
-            var circleBody = Bodies.circle(circleElemInitialPosX, circleElemInitialPosY, radius, {
-                density: 0.01, friction: 0.1, restitution: 0.5, render: { opacity: 0 }
-            });
+        var elemWidth = matterElem.offsetWidth;
 
-            circleBody.initialPosition = { x: circleElemInitialPosX, y: circleElemInitialPosY };
-            circleBody.initialAngle = 0;
-            circleBody.domElement = matterCircleElem;
+        var elemHeight = matterElem.offsetHeight;
 
-            Composite.add(engine.world, circleBody);
-            elementBodies.push(circleBody);
-        } catch (error) {
-            console.error("Error creating circle body for:", matterCircleElem, error);
-        }
-    });
+        var elemPosX = matterElem.offsetLeft + elemWidth / 2;
 
-    // Pills
-    matterPill.forEach(function(matterPillElem, index) {
-        try {
-            var pillWidth = matterPillElem.offsetWidth;
-            var pillHeight = matterPillElem.offsetHeight;
-            var pillInitialPosX = matterPillElem.offsetLeft + pillWidth / 2;
-            var pillInitialPosY = matterPillElem.offsetTop + pillHeight / 2;
-            var pillRadius = pillHeight / 2;
+        var elemPosY = matterElem.offsetTop + elemHeight / 2;
 
-            if (pillWidth < pillHeight) {
-                 console.warn("Pill element is taller than wide, physics might be unexpected:", matterPillElem);
-                 // Có thể xử lý như hình chữ nhật hoặc hình tròn nếu muốn
-            }
 
-            var rectWidth = Math.max(0, pillWidth - pillHeight); // Đảm bảo không âm
-            var circleOffsetX = rectWidth / 2;
 
-            // Tạo các phần với vị trí tương đối (0,0) là tâm của body tổng hợp
-            var parts = [];
-             if (rectWidth > 0) {
-                parts.push(Bodies.rectangle(0, 0, rectWidth, pillHeight, { render: { opacity: 0 } })); // Phần chữ nhật ở giữa
-             }
-             // Luôn thêm 2 hình tròn ở 2 đầu (kể cả khi rectWidth=0, chúng sẽ chồng lên nhau tạo thành hình tròn)
-             parts.push(Bodies.circle(-circleOffsetX, 0, pillRadius, { render: { opacity: 0 } })); // Trái
-             parts.push(Bodies.circle(circleOffsetX, 0, pillRadius, { render: { opacity: 0 } })); // Phải
+        var elemBody = Bodies.rectangle(elemPosX, elemPosY, elemWidth, elemHeight, {
 
-            var pillBody = Body.create({
-                parts: parts,
-                friction: 0.1, restitution: 0.5, density: 0.01,
-                render: { opacity: 0 } // Ẩn body tổng hợp (vì các phần đã ẩn)
-            });
+            density: 0.01,
 
-            // Đặt vị trí và góc ban đầu cho body tổng hợp
-            Body.setPosition(pillBody, { x: pillInitialPosX, y: pillInitialPosY });
-            Body.setAngle(pillBody, 0); // Góc ban đầu
+            friction: 0.1,
 
-            pillBody.initialPosition = { x: pillInitialPosX, y: pillInitialPosY };
-            pillBody.initialAngle = 0;
-            pillBody.domElement = matterPillElem;
+            restitution: 0.5,
 
-            Composite.add(engine.world, pillBody);
-            elementBodies.push(pillBody);
-        } catch (error) {
-            console.error("Error creating pill body for:", matterPillElem, error);
-        }
-    });
-    console.log("Initial bodies created:", elementBodies.length);
+            render: {
+
+                opacity: 0
+
+            }
+
+        });
+
+
+
+        Composite.add(engine.world, elemBody);
+
+        return elemBody;
+
+    });
+
 }
 
-// --- Hàm tạo đường biên ---
-var boundaries = [];
+
+
+// Function to create circles for dm-matter-elem-circle elements
+
+function createCircles() {
+
+    return Array.from(matterCircle).map(function(matterCircleElem) {
+
+        var circleElemWidth = matterCircleElem.offsetWidth;
+
+        var circleElemHeight = matterCircleElem.offsetHeight;
+
+        var circleElemPosX = matterCircleElem.offsetLeft + circleElemWidth / 2;
+
+        var circleElemPosY = matterCircleElem.offsetTop + circleElemHeight / 2;
+
+
+
+        var circleBody = Bodies.circle(circleElemPosX, circleElemPosY, Math.max(circleElemWidth, circleElemHeight) / 2, {
+
+            density: 0.01,
+
+            friction: 0.1,
+
+            restitution: 0.5,
+
+            render: {
+
+                opacity: 0
+
+            }
+
+        });
+
+
+
+        Composite.add(engine.world, circleBody);
+
+        return circleBody;
+
+    });
+
+}
+
+
+
+// Function to create pill shapes for dm-matter-elem-pill elements
+
+function createPills() {
+
+    return Array.from(matterPill).map(function(matterPillElem) {
+
+        var pillWidth = matterPillElem.offsetWidth;
+
+        var pillHeight = matterPillElem.offsetHeight;
+
+        var pillPosX = matterPillElem.offsetLeft + pillWidth / 2;
+
+        var pillPosY = matterPillElem.offsetTop + pillHeight / 2;
+
+        var pillRadius = pillHeight / 2;
+
+
+
+        var leftCircle = Bodies.circle(pillPosX - pillWidth / 2 + pillRadius, pillPosY, pillRadius, {
+
+            density: 0.01,
+
+            friction: 0.1,
+
+            restitution: 0.5,
+
+            render: {
+
+                opacity: 0
+
+            }
+
+        });
+
+
+
+        var rightCircle = Bodies.circle(pillPosX + pillWidth / 2 - pillRadius, pillPosY, pillRadius, {
+
+            density: 0.01,
+
+            friction: 0.1,
+
+            restitution: 0.5,
+
+            render: {
+
+                opacity: 0
+
+            }
+
+        });
+
+
+
+        var rect = Bodies.rectangle(pillPosX, pillPosY, pillWidth - pillHeight, pillHeight, {
+
+            density: 0.01,
+
+            friction: 0.1,
+
+            restitution: 0.5,
+
+            render: {
+
+                opacity: 0
+
+            }
+
+        });
+
+
+
+        var pillBody = Body.create({
+
+            parts: [leftCircle, rightCircle, rect],
+
+            friction: 0.1,
+
+            restitution: 0.5
+
+        });
+
+
+
+        Composite.add(engine.world, pillBody);
+
+        return pillBody;
+
+    });
+
+}
+
+
+
+// create bodies for elements
+
+var elemBodies = createRectangles();
+
+var elemCircles = createCircles();
+
+var elemPills = createPills();
+
+
+
+// Function to create static bodies for boundaries
+
 function createBoundaries() {
-    console.log("Creating boundaries...");
-    // Xóa đường biên cũ
-    boundaries.forEach(body => Composite.remove(engine.world, body));
-    boundaries = [];
 
-    if (!matterBox) return; // Không tạo biên nếu không có container
+    var ground = Bodies.rectangle(matterBox.clientWidth / 2, matterBox.clientHeight, matterBox.clientWidth, 1, {
 
-    var thickness = 60; // Làm đường biên dày hơn để tránh lọt
-    var width = matterBox.clientWidth;
-    var height = matterBox.clientHeight;
+        isStatic: true,
 
-    boundaries = [
-        // Ground (bottom)
-        Bodies.rectangle(width / 2, height + thickness / 2, width + thickness*2, thickness, { isStatic: true, render: { visible: false } }),
-        // Top wall
-        Bodies.rectangle(width / 2, -thickness / 2, width + thickness*2, thickness, { isStatic: true, render: { visible: false } }),
-        // Left wall
-        Bodies.rectangle(-thickness / 2, height / 2, thickness, height + thickness*2, { isStatic: true, render: { visible: false } }),
-        // Right wall
-        Bodies.rectangle(width + thickness / 2, height / 2, thickness, height + thickness*2, { isStatic: true, render: { visible: false } })
-    ];
+        render: {
 
-    Composite.add(engine.world, boundaries);
-    console.log("Boundaries created.");
+            opacity: 0
+
+        }
+
+    });
+
+
+
+    var leftWall = Bodies.rectangle(0, matterBox.clientHeight / 2, 1, matterBox.clientHeight, {
+
+        isStatic: true,
+
+        render: {
+
+            opacity: 0
+
+        }
+
+    });
+
+
+
+    var rightWall = Bodies.rectangle(matterBox.clientWidth, matterBox.clientHeight / 2, 1, matterBox.clientHeight, {
+
+        isStatic: true,
+
+        render: {
+
+            opacity: 0
+
+        }
+
+    });
+
+
+
+    var topWall = Bodies.rectangle(matterBox.clientWidth / 2, 0, matterBox.clientWidth, 1, {
+
+        isStatic: true,
+
+        render: {
+
+            opacity: 0
+
+        }
+
+    });
+
+
+
+    // add all of the bodies to the world
+
+    Composite.add(engine.world, [ground, leftWall, rightWall, topWall]);
+
 }
 
-// --- Khởi tạo ban đầu ---
-createInitialBodies();
+
+
 createBoundaries();
 
-// --- Runner & Mouse (giữ nguyên) ---
+
+
+// create runner
+
 var runner = Runner.create();
-var mouse = Mouse.create(render.canvas);
-var mouseConstraint = MouseConstraint.create(engine, {
-    mouse: mouse,
-    constraint: { stiffness: 0.2, render: { visible: false } }
-});
+
+
+
+// add mouse control
+
+var mouse = Mouse.create(render.canvas),
+
+    mouseConstraint = MouseConstraint.create(engine, {
+
+        mouse: mouse,
+
+        constraint: {
+
+            stiffness: 0.2,
+
+            render: {
+
+                visible: false
+
+            }
+
+        }
+
+    });
+
+
+
 Composite.add(engine.world, mouseConstraint);
+
+
+
+// keep the mouse in sync with rendering
+
 render.mouse = mouse;
 
-// --- Vòng lặp cập nhật (Update Loop) ---
+
+
+// update positions and rotations after every engine update
+
 Events.on(engine, 'afterUpdate', function() {
-    elementBodies.forEach(function(body) {
-        var domElem = body.domElement;
-        if (!domElem) return; // Bỏ qua nếu không có DOM element tương ứng
 
-        var position = body.position;
-        var angle = body.angle;
+    elemBodies.forEach(function(elemBody, index) {
 
-        // Dùng transform để hiệu năng tốt hơn
-        domElem.style.transform = `translate(${position.x - domElem.offsetWidth / 2}px, ${position.y - domElem.offsetHeight / 2}px) rotate(${angle}rad)`;
-    });
+        var angle = elemBody.angle;
+
+        var position = elemBody.position;
+
+        var matterElem = matterElems[index];
+
+
+
+        matterElem.style.left = (position.x - matterElem.offsetWidth / 2) + 'px';
+
+        matterElem.style.top = (position.y - matterElem.offsetHeight / 2) + 'px';
+
+        matterElem.style.transform = 'rotate(' + angle + 'rad)';
+
+    });
+
+
+
+    elemCircles.forEach(function(circleBody, index) {
+
+        var angle = circleBody.angle;
+
+        var position = circleBody.position;
+
+        var matterCircleElem = matterCircle[index];
+
+
+
+        matterCircleElem.style.left = (position.x - matterCircleElem.offsetWidth / 2) + 'px';
+
+        matterCircleElem.style.top = (position.y - matterCircleElem.offsetHeight / 2) + 'px';
+
+        matterCircleElem.style.transform = 'rotate(' + angle + 'rad)';
+
+    });
+
+
+
+    elemPills.forEach(function(pillBody, index) {
+
+        var angle = pillBody.angle;
+
+        var position = pillBody.position;
+
+        var matterPillElem = matterPill[index];
+
+
+
+        matterPillElem.style.left = (position.x - matterPillElem.offsetWidth / 2) + 'px';
+
+        matterPillElem.style.top = (position.y - matterPillElem.offsetHeight / 2) + 'px';
+
+        matterPillElem.style.transform = 'rotate(' + angle + 'rad)';
+
+    });
+
 });
 
-// --- Xử lý Resize (ĐƠN GIẢN HÓA) ---
+
+
+// Function to handle resize event
+
 function handleResize() {
-    console.log("Handling resize...");
-    if (!matterBox) return;
 
-    // 1. Cập nhật kích thước renderer
-    render.options.width = matterBox.clientWidth;
-    render.options.height = matterBox.clientHeight;
-    render.bounds.max.x = matterBox.clientWidth;
-    render.bounds.max.y = matterBox.clientHeight;
-    render.canvas.width = matterBox.clientWidth;
-    render.canvas.height = matterBox.clientHeight;
+    // Clear the existing bodies
 
-    // 2. Chỉ tạo lại đường biên
-    createBoundaries();
+    Composite.clear(engine.world, false);
 
-    // KHÔNG tạo lại element bodies ở đây nữa
-    console.log("Resize handled.");
+
+
+    // Recreate boundaries and bodies
+
+    createBoundaries();
+
+    elemBodies = createRectangles();
+
+    elemCircles = createCircles();
+
+    elemPills = createPills();
+
+
+
+    // Update the renderer size
+
+    render.options.width = matterBox.clientWidth;
+
+    render.options.height = matterBox.clientHeight;
+
+
+
+    // Update mouse constraint
+
+    mouseConstraint.mouse.element.removeEventListener("mousewheel", mouseConstraint.mouse.mousewheel);
+
+    mouseConstraint.mouse.element.removeEventListener("DOMMouseScroll", mouseConstraint.mouse.mousewheel);
+
+
+
+    mouseConstraint.mouse.element.removeEventListener('touchstart', mouseConstraint.mouse.mousedown);
+
+    mouseConstraint.mouse.element.removeEventListener('touchmove', mouseConstraint.mouse.mousemove);
+
+    mouseConstraint.mouse.element.removeEventListener('touchend', mouseConstraint.mouse.mouseup);
+
+
+
+    mouseConstraint.mouse.element.addEventListener('touchstart', mouseConstraint.mouse.mousedown, { passive: true });
+
+    mouseConstraint.mouse.element.addEventListener('touchmove', (e) => {
+
+        if (mouseConstraint.body) {
+
+            mouseConstraint.mouse.mousemove(e);
+
+        }
+
+    });
+
+    mouseConstraint.mouse.element.addEventListener('touchend', (e) => {
+
+        if (mouseConstraint.body) {
+
+            mouseConstraint.mouse.mouseup(e);
+
+        }
+
+    });
+
 }
 
-var resizeTimeout;
-window.addEventListener('resize', function() {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(handleResize, 150); // Tăng debounce time một chút
-});
 
-// --- Xử lý cuộn/touch (giữ nguyên như code trước) ---
+
+// Add resize event listener
+
+window.addEventListener('resize', handleResize);
+
+
+
+// Allow scrolling when mouse is on matter container
+
 mouseConstraint.mouse.element.removeEventListener("mousewheel", mouseConstraint.mouse.mousewheel);
+
 mouseConstraint.mouse.element.removeEventListener("DOMMouseScroll", mouseConstraint.mouse.mousewheel);
+
+
+
+// Allow swiping on touch-screen when in touch with the matter container
+
 mouseConstraint.mouse.element.removeEventListener('touchstart', mouseConstraint.mouse.mousedown);
+
 mouseConstraint.mouse.element.removeEventListener('touchmove', mouseConstraint.mouse.mousemove);
+
 mouseConstraint.mouse.element.removeEventListener('touchend', mouseConstraint.mouse.mouseup);
+
+
+
 mouseConstraint.mouse.element.addEventListener('touchstart', mouseConstraint.mouse.mousedown, { passive: true });
+
 mouseConstraint.mouse.element.addEventListener('touchmove', (e) => {
-  if (mouseConstraint.body) {
-    // Chỉ ngăn chặn default nếu đang kéo một vật thể
-    try { e.preventDefault(); } catch (err) {} // Thêm try-catch phòng lỗi
-    mouseConstraint.mouse.mousemove(e);
-  }
-}, { passive: false });
+
+  if (mouseConstraint.body) {
+
+    mouseConstraint.mouse.mousemove(e);
+
+  }
+
+});
+
 mouseConstraint.mouse.element.addEventListener('touchend', (e) => {
-  if (mouseConstraint.body) {
-    mouseConstraint.mouse.mouseup(e);
-  }
+
+  if (mouseConstraint.body) {
+
+    mouseConstraint.mouse.mouseup(e);
+
+  }
+
 });
 
 
-// --- Nút Reset ---
-var resetButton = document.getElementById('resetMatterBox');
-if (resetButton) {
-    resetButton.addEventListener('click', function() {
-        console.log('--- Resetting simulation ---');
-        if (elementBodies.length === 0) {
-             console.warn("No bodies found to reset. Was initialization successful?");
-             return;
-        }
-        elementBodies.forEach(function(body) {
-            // Kiểm tra xem body có hợp lệ và có trạng thái ban đầu không
-            if (body && body.initialPosition && typeof body.initialAngle !== 'undefined') {
-                try {
-                    // Đặt lại trạng thái ngủ
-                    Body.setSleeping(body, false);
-                    // Đặt lại vị trí và góc
-                    Body.setPosition(body, body.initialPosition);
-                    Body.setAngle(body, body.initialAngle);
-                    // Đặt lại vận tốc
-                    Body.setVelocity(body, { x: 0, y: 0 });
-                    Body.setAngularVelocity(body, 0);
-                } catch (error) {
-                    console.error("Error resetting body:", body, error);
-                }
-            } else {
-                console.warn('Body missing initial state or invalid:', body);
-            }
-        });
-        console.log('--- Simulation reset complete ---');
-         // Có thể cần trigger update 1 lần để DOM đồng bộ ngay lập tức
-        // Events.trigger(engine, 'afterUpdate');
-    });
-} else {
-    console.warn('Reset button #resetMatterBox not found.');
-}
 
-// --- Intersection Observer (giữ nguyên) ---
+// Flag to check if the engine has started
+
 var engineStarted = false;
-var observer = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-        if (entry.isIntersecting && !engineStarted) {
-            console.log('Matter engine starting...');
-            engineStarted = true;
-            Runner.run(runner, engine);
-            Render.run(render);
-            console.log('Matter engine running.');
-        }
-        // Tạm thời bỏ qua việc dừng engine khi ra khỏi viewport
-    });
-}, { threshold: 0.1 });
 
-if (matterBox) {
-    observer.observe(matterBox);
-}
+
+
+// Intersection Observer to start the engine only once
+
+var observer = new IntersectionObserver(function(entries) {
+
+    entries.forEach(function(entry) {
+
+        if (entry.isIntersecting && !engineStarted) {
+
+            // Element is in viewport and engine has not started yet
+
+            engineStarted = true;
+
+            Runner.run(runner, engine);
+
+            Render.run(render);
+
+        }
+
+    });
+
+}, {
+
+    threshold: 0.1 // Adjust the threshold as needed
+
+});
+
+
+
+// Start observing the matterBox
+
+observer.observe(matterBox);
 
 
 
