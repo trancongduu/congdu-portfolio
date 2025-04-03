@@ -242,45 +242,46 @@ matterBoxes.forEach((matterBox) => {
     Composite.add(engine.world, mouseConstraint);
     render.mouse = mouse;
 
-    Events.on(engine, 'afterUpdate', function() {
-            var boxBounds = {
-            minX: 0,
-            maxX: box.clientWidth,
-            minY: 0,
-            maxY: box.clientHeight
-        };
-    
-        bodies.forEach((body, index) => {
-            var element = elements[index];
-            if (!element) return;
-    
-            // Giữ phần tử trong giới hạn của `matterBox`
-            if (body.position.x < boxBounds.minX) {
-                Body.setPosition(body, { x: boxBounds.minX + 10, y: body.position.y });
-            }
-            if (body.position.x > boxBounds.maxX) {
-                Body.setPosition(body, { x: boxBounds.maxX - 10, y: body.position.y });
-            }
-            if (body.position.y < boxBounds.minY) {
-                Body.setPosition(body, { x: body.position.x, y: boxBounds.minY + 10 });
-            }
-            if (body.position.y > boxBounds.maxY) {
-                Body.setPosition(body, { x: body.position.x, y: boxBounds.maxY - 10 });
-            }
-    
-            // Cập nhật vị trí hiển thị của phần tử
-            element.style.left = (body.position.x - element.offsetWidth / 2) + 'px';
-            element.style.top = (body.position.y - element.offsetHeight / 2) + 'px';
-            element.style.transform = `rotate(${body.angle}rad)`;
-        });
-    }
-    
-    // Cập nhật vị trí cho từng `.matter-box`
-    document.querySelectorAll('.matter-box').forEach((box) => {
-        updateElementPositions(elemBodies, matterElems, box);
-        updateElementPositions(elemCircles, matterCircle, box);
-        updateElementPositions(elemPills, matterPill, box);
+    function updateElementPositions(bodies, elements, box) {
+    var boxBounds = {
+        minX: 0,
+        maxX: box.clientWidth,
+        minY: 0,
+        maxY: box.clientHeight
+    };
+
+    bodies.forEach((body, index) => {
+        var element = elements[index];
+        if (!element) return;
+
+        // Giữ phần tử trong giới hạn của `matterBox`
+        if (body.position.x < boxBounds.minX) {
+            Body.setPosition(body, { x: boxBounds.minX + 10, y: body.position.y });
+        }
+        if (body.position.x > boxBounds.maxX) {
+            Body.setPosition(body, { x: boxBounds.maxX - 10, y: body.position.y });
+        }
+        if (body.position.y < boxBounds.minY) {
+            Body.setPosition(body, { x: body.position.x, y: boxBounds.minY + 10 });
+        }
+        if (body.position.y > boxBounds.maxY) {
+            Body.setPosition(body, { x: body.position.x, y: boxBounds.maxY - 10 });
+        }
+
+        // Cập nhật vị trí hiển thị của phần tử
+        element.style.left = (body.position.x - element.offsetWidth / 2) + 'px';
+        element.style.top = (body.position.y - element.offsetHeight / 2) + 'px';
+        element.style.transform = `rotate(${body.angle}rad)`;
     });
+}
+
+// Cập nhật vị trí cho từng `.matter-box`
+document.querySelectorAll('.matter-box').forEach((box) => {
+    updateElementPositions(elemBodies, matterElems, box);
+    updateElementPositions(elemCircles, matterCircle, box);
+    updateElementPositions(elemPills, matterPill, box);
+});
+
 
     var engineStarted = false;
 
