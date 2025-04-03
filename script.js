@@ -324,6 +324,36 @@ Events.on(engine, 'afterUpdate', function() {
         matterPillElem.style.top = (position.y - matterPillElem.offsetHeight / 2) + 'px';
         matterPillElem.style.transform = 'rotate(' + angle + 'rad)';
     });
+
+
+    var boxBounds = {
+        minX: 0,
+        maxX: matterBox.clientWidth,
+        minY: 0,
+        maxY: matterBox.clientHeight
+    };
+
+    function constrainBody(body, element) {
+        if (body.position.x < boxBounds.minX) {
+            Body.setPosition(body, { x: boxBounds.minX + 10, y: body.position.y });
+        }
+        if (body.position.x > boxBounds.maxX) {
+            Body.setPosition(body, { x: boxBounds.maxX - 10, y: body.position.y });
+        }
+        if (body.position.y < boxBounds.minY) {
+            Body.setPosition(body, { x: body.position.x, y: boxBounds.minY + 10 });
+        }
+        if (body.position.y > boxBounds.maxY) {
+            Body.setPosition(body, { x: body.position.x, y: boxBounds.maxY - 10 });
+        }
+
+        element.style.left = (body.position.x - element.offsetWidth / 2) + 'px';
+        element.style.top = (body.position.y - element.offsetHeight / 2) + 'px';
+    }
+
+    elemBodies.forEach((body, index) => constrainBody(body, matterElems[index]));
+    elemCircles.forEach((body, index) => constrainBody(body, matterCircle[index]));
+    elemPills.forEach((body, index) => constrainBody(body, matterPill[index]));
 });
 
 // Function to handle resize event
@@ -405,6 +435,8 @@ var observer = new IntersectionObserver(function(entries) {
 
 // Start observing the matterBox
 observer.observe(matterBox);
+
+
 
 
 
