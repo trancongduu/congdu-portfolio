@@ -267,7 +267,10 @@ matterBoxes.forEach((matterBox) => {
             Body.setPosition(body, { x: body.position.x, y: boxBounds.maxY - 10 });
         }
 
-        // Cập nhật vị trí hiển thị của phần tử
+        // Cập nhật vị trí hiển thị của phần tử và xoay
+        var angle = body.angle;
+        var transform = element.style.transform || ''; // Giữ lại transform cũ
+        element.style.transform = transform + ` rotate(${angle}rad)`;
         element.style.left = (body.position.x - element.offsetWidth / 2) + 'px';
         element.style.top = (body.position.y - element.offsetHeight / 2) + 'px';
     }
@@ -277,6 +280,7 @@ matterBoxes.forEach((matterBox) => {
     elemCircles.forEach((body, index) => constrainBody(body, matterCircle[index]));
     elemPills.forEach((body, index) => constrainBody(body, matterPill[index]));
 });
+
 
 
 
