@@ -242,16 +242,15 @@ matterBoxes.forEach((matterBox) => {
     Composite.add(engine.world, mouseConstraint);
     render.mouse = mouse;
 
-    function updateElementPositions(bodies, elements, box) {
+    Events.on(engine, 'afterUpdate', function() {
     var boxBounds = {
         minX: 0,
-        maxX: box.clientWidth,
+        maxX: matterBox.clientWidth,
         minY: 0,
-        maxY: box.clientHeight
+        maxY: matterBox.clientHeight
     };
 
-    bodies.forEach((body, index) => {
-        var element = elements[index];
+    function constrainBody(body, element) {
         if (!element) return;
 
         // Giữ phần tử trong giới hạn của `matterBox`
@@ -271,16 +270,14 @@ matterBoxes.forEach((matterBox) => {
         // Cập nhật vị trí hiển thị của phần tử
         element.style.left = (body.position.x - element.offsetWidth / 2) + 'px';
         element.style.top = (body.position.y - element.offsetHeight / 2) + 'px';
-        element.style.transform = `rotate(${body.angle}rad)`;
-    });
-}
+    }
 
-// Cập nhật vị trí cho từng `.matter-box`
-document.querySelectorAll('.matter-box').forEach((box) => {
-    updateElementPositions(elemBodies, matterElems, box);
-    updateElementPositions(elemCircles, matterCircle, box);
-    updateElementPositions(elemPills, matterPill, box);
+    // Áp dụng giới hạn cho từng phần tử trong matterBox
+    elemBodies.forEach((body, index) => constrainBody(body, matterElems[index]));
+    elemCircles.forEach((body, index) => constrainBody(body, matterCircle[index]));
+    elemPills.forEach((body, index) => constrainBody(body, matterPill[index]));
 });
+
 
 
     var engineStarted = false;
